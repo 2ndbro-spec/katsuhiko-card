@@ -18,7 +18,9 @@ export async function POST(req: NextRequest) {
       parts: [{ text: m.content }],
     }))
 
-    const chat = model.startChat({ history })
+    const safeHistory = history[0]?.role === 'model' ? history.slice(1) : history
+
+    const chat = model.startChat({ history: safeHistory })
     const lastMessage = messages[messages.length - 1]
     const result = await chat.sendMessage(lastMessage.content)
     const text = result.response.text()
