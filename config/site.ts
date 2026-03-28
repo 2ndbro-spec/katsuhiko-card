@@ -57,4 +57,6 @@ export const SITE_CONFIG = {
   nameEn: 'Katsuhiko Tanaka',
   title: 'コンセプト設計 / ビジネスアーキテクト',
   timerexUrl: 'https://timerex.net/s/ktanaka.denno_ec00/e0d6043a',
+  phone: '070-8566-3534',
+  email: 'tanaka@dennoworks.com',
 }

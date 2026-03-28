@@ -43,6 +43,8 @@ FN:田中 克彦
 N:田中;克彦;;;
 ORG:
 TITLE:コンセプト設計 / ビジネスアーキテクト
+TEL;TYPE=CELL:${SITE_CONFIG.phone}
+EMAIL:${SITE_CONFIG.email}
 END:VCARD`
   const blob = new Blob([vcard], { type: 'text/vcard' })
   const url = URL.createObjectURL(blob)
