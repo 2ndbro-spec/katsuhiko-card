@@ -1,4 +1,16 @@
-export const SYSTEM_PROMPT = `あなたは田中克彦の優秀な秘書AIです。
+import type { KnowledgeEntry } from './knowledge'
+
+export function buildSystemPrompt(entries: KnowledgeEntry[]): string {
+  if (entries.length === 0) return BASE_SYSTEM_PROMPT
+
+  const knowledgeBlock = entries
+    .map(e => `### ${e.title}\n${e.content}`)
+    .join('\n\n')
+
+  return `${BASE_SYSTEM_PROMPT}\n## 追加の知識ベース\n\n${knowledgeBlock}\n`
+}
+
+export const BASE_SYSTEM_PROMPT = `あなたは田中克彦の優秀な秘書AIです。
 
 ## あなたの役割
 - 田中克彦の取扱説明書・価値観を熟知した上で、訪問者の質問に丁寧かつ簡潔に回答する

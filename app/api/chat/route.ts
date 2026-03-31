@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { NextRequest, NextResponse } from 'next/server'
-import { SYSTEM_PROMPT } from '@/lib/system-prompt'
+import { BASE_SYSTEM_PROMPT, buildSystemPrompt } from '@/lib/system-prompt'
+import { fetchAllEntries } from '@/lib/knowledge'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
@@ -8,9 +9,17 @@ export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json()
 
+    let systemPrompt = BASE_SYSTEM_PROMPT
+    try {
+      const entries = await fetchAllEntries()
+      systemPrompt = buildSystemPrompt(entries)
+    } catch {
+      // Supabase unavailable — fall back to base prompt
+    }
+
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',
-      systemInstruction: SYSTEM_PROMPT,
+      systemInstruction: systemPrompt,
     })
 
     const history = messages.slice(0, -1).map((m: { role: string; content: string }) => ({
