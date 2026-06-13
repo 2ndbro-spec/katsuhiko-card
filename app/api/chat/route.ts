@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { NextRequest, NextResponse } from 'next/server'
-import { BASE_SYSTEM_PROMPT, buildSystemPrompt } from '@/lib/system-prompt'
-import { fetchAllEntries } from '@/lib/knowledge'
+import { buildSystemPrompt, BASE_SYSTEM_PROMPT } from '@/lib/system-prompt'
+import { searchRAG } from '@/lib/rag'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 
@@ -9,12 +9,19 @@ export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json()
 
+    // ユーザーの最新メッセージを取得してRAG検索
+    const lastUserMessage = [...messages].reverse().find(
+      (m: { role: string; content: string }) => m.role === 'user'
+    )
+
     let systemPrompt = BASE_SYSTEM_PROMPT
     try {
-      const entries = await fetchAllEntries()
-      systemPrompt = buildSystemPrompt(entries)
+      const ragSnippets = lastUserMessage
+        ? await searchRAG(lastUserMessage.content, 5)
+        : ''
+      systemPrompt = buildSystemPrompt(ragSnippets)
     } catch {
-      // Supabase unavailable — fall back to base prompt
+      // RAG失敗時はベースプロンプトで継続（可用性優先）
     }
 
     const model = genAI.getGenerativeModel({
