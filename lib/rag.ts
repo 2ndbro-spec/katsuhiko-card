@@ -1,8 +1,6 @@
 import 'server-only'
 import OpenAI from 'openai'
-import { sql } from './neon'
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
+import { getDb } from './neon'
 
 interface RagChunk {
   id: string
@@ -18,6 +16,8 @@ interface RagChunk {
  * ユーザーの質問を埋め込み → Neon public_chunks をベクトル検索 → スニペット文字列を返す
  */
 export async function searchRAG(query: string, matchCount = 5): Promise<string> {
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
+
   // 1. クエリを埋め込む
   const resp = await openai.embeddings.create({
     model: 'text-embedding-3-small',
@@ -27,6 +27,7 @@ export async function searchRAG(query: string, matchCount = 5): Promise<string> 
   const embeddingStr = '[' + embedding.join(',') + ']'
 
   // 2. recency重み付きベクトル検索
+  const sql = getDb()
   const results = (await sql`
     SELECT * FROM search_public_chunks(
       ${embeddingStr}::vector(1536),

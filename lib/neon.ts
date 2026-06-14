@@ -1,4 +1,7 @@
 import 'server-only'
 import { neon } from '@neondatabase/serverless'
 
-export const sql = neon(process.env.NEON_DATABASE_URL!)
+// ビルド時ではなくリクエスト時に初期化する
+export function getDb() {
+  return neon(process.env.NEON_DATABASE_URL!)
+}
