@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { fetchAllEntries, KnowledgeEntry } from '@/lib/knowledge'
 import {
   logoutAction,
